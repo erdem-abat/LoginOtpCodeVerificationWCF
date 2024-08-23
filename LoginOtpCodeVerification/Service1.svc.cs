@@ -1,30 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Text;
-using System.Web;
-using System.Web.UI;
 
 namespace LoginOtpCodeVerification
 {
-    // NOTE: You can use the "Rename" command on the "Refactor" menu to change the class name "Service1" in code, svc and config file together.
-    // NOTE: In order to launch WCF Test Client for testing this service, please select Service1.svc or Service1.svc.cs at the Solution Explorer and start debugging.
     public class Service1 : IService1
     {
-        public OtpModel CheckOtp(ValidationModel validationModel)
+        private static Random r = new Random();
+        private static string otp;
+        public OtpResponseModel CheckOtp(EmailSentModel emailSentModel)
         {
-            Random r = new Random();
-            string otp = r.Next(10001,99999).ToString();
+            otp = GenerateOtp();
 
             try
             {
-                using (MailMessage mm = new MailMessage("notifyproject101@hotmail.com", validationModel.Email))
+                using (MailMessage mm = new MailMessage("notifyproject101@hotmail.com", emailSentModel.Email))
                 {
                     mm.Subject = "Otp Onay";
                     string msg = "Otp kodunuz: " + otp;
@@ -51,10 +41,9 @@ namespace LoginOtpCodeVerification
                 {
                     Console.WriteLine("Inner Exception: " + smtpEx.InnerException.Message);
                 }
-                return new OtpModel
+                return new OtpResponseModel
                 {
-                    OtpCode = otp,
-                    Status = false
+                    Response = "email gönderilemedi."
                 };
             }
             catch (Exception ex)
@@ -64,19 +53,40 @@ namespace LoginOtpCodeVerification
                 {
                     Console.WriteLine("Inner Exception: " + ex.InnerException.Message);
                 }
-                return new OtpModel
+                return new OtpResponseModel
                 {
-                    OtpCode = otp,
-                    Status = false
+                    Response = "email gönderilemedi."
                 };
             }
 
-            return new OtpModel
+            return new OtpResponseModel
             {
-                OtpCode = otp,
-                Status = true
+                Response = "email başarılı bir şekilde gönderildi."
             };
         }
+        private string GenerateOtp()
+        {
+            return r.Next(100000, 999999).ToString();
+        }
 
+        public ValidateResponseModel ValidateOtp(string otpCode)
+        {
+            ValidateResponseModel res = new ValidateResponseModel();
+
+            if (string.IsNullOrWhiteSpace(otp))
+            {
+                res.Response = false;
+                return res;
+            }
+
+            if (otpCode == otp)
+            {
+                res.Response = true;
+                return res;
+            }
+
+            res.Response = false;
+            return res;
+        }
     }
 }

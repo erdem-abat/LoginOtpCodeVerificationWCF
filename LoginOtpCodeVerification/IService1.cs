@@ -14,13 +14,16 @@ namespace LoginOtpCodeVerification
     {
 
         [OperationContract]
-        OtpModel CheckOtp(ValidationModel validationModel);
+        OtpResponseModel CheckOtp(EmailSentModel emailSentModel);
+
+        [OperationContract]
+        ValidateResponseModel ValidateOtp(string otpCode);
 
     }
 
 
     [DataContract]
-    public class ValidationModel
+    public class EmailSentModel
     {
         string email = string.Empty;
 
@@ -33,23 +36,28 @@ namespace LoginOtpCodeVerification
     }
 
     [DataContract]
-    public class OtpModel
+    public class OtpResponseModel
     {
-        string otpCode = string.Empty;
-        bool status = false;
+        string response = string.Empty;
 
         [DataMember]
-        public string OtpCode
+        public string Response
         {
-            get { return otpCode; }
-            set { otpCode = value; }
+            get { return response; }
+            set { response = value; }
         }
+    }
+
+    [DataContract]
+    public class ValidateResponseModel
+    {
+        bool response = false;
 
         [DataMember]
-        public bool Status
+        public bool Response
         {
-            get { return status; }
-            set { status = value; }
+            get { return response; }
+            set { response = value; }
         }
     }
 }

@@ -17,7 +17,7 @@ namespace LoginOtpCodeVerification
         OtpResponseModel CheckOtp(EmailSentModel emailSentModel);
 
         [OperationContract]
-        ValidateResponseModel ValidateOtp(string otpCode);
+        ValidateResponseModel ValidateOtp(string email, string otpCode);
 
     }
 

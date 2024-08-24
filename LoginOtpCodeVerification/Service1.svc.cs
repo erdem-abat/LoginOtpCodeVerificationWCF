@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Mail;
 
@@ -7,10 +8,12 @@ namespace LoginOtpCodeVerification
     public class Service1 : IService1
     {
         private static Random r = new Random();
-        private static string otp;
+        private static Dictionary<string, string> otpDictionary = new Dictionary<string, string>();
+
         public OtpResponseModel CheckOtp(EmailSentModel emailSentModel)
         {
-            otp = GenerateOtp();
+            string otp = GenerateOtp();
+            otpDictionary[emailSentModel.Email] = otp;
 
             try
             {
@@ -69,19 +72,20 @@ namespace LoginOtpCodeVerification
             return r.Next(100000, 999999).ToString();
         }
 
-        public ValidateResponseModel ValidateOtp(string otpCode)
+        public ValidateResponseModel ValidateOtp(string email, string otpCode)
         {
             ValidateResponseModel res = new ValidateResponseModel();
 
-            if (string.IsNullOrWhiteSpace(otp))
+            if (string.IsNullOrWhiteSpace(email) || !otpDictionary.ContainsKey(email))
             {
                 res.Response = false;
                 return res;
             }
 
-            if (otpCode == otp)
+            if (otpDictionary[email] == otpCode)
             {
                 res.Response = true;
+                otpDictionary.Remove(email); 
                 return res;
             }
 
